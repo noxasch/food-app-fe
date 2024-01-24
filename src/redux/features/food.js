@@ -7,7 +7,22 @@ export const foodsSlice = createSlice({
   initialState: initialState,
   reducers: {
     append: (state, action) => {
-      return state.push(action.payload.foods)
+      return [...state, action.payload]
+    },
+    remove: (state, action) => {
+      const id = action.payload
+      console.log('BEFORE', state.length)
+      console.log('BEFORE', id)
+      const res = state.filter((item) => item.id !== id)
+      console.log('AFTER', res.length)
+      return res
+    },
+    update: (state, action) => {
+      const id = action.payload.id
+      const idx = state.findIndex(o => o.id == id)
+      const res = [...state]
+      res[idx] = action.payload
+      return res
     },
     reset: (state, action) => {
       return initialState;
@@ -19,6 +34,6 @@ export const foodsSlice = createSlice({
   }
 })
 
-export const { append, reset, set } = foodsSlice.actions
+export const { append, reset, set, update, remove } = foodsSlice.actions
 
 export default foodsSlice.reducer
