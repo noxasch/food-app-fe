@@ -1,20 +1,26 @@
-"use client"
+'use client'
 
-import FoodModal from "./food_modal";
-import FoodTableRow from "./food_table_row";
-
-import { useRef } from "react";
+import { useState, useEffect } from 'react'
+import { getFoods } from '@/lib/api'
+import FoodTableRow from "./food_table_row"
+import { set } from '@/redux/features/food'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function FoodIndex() {
-    const ref  = useRef(null);
+    const dispatch = useDispatch()
 
-    function onCreate() {
-        // const options = {}
-        // const instanceOptions = {}
-        // const modal = new Modal($targetEl, options, instanceOptions);
-        const modal = new Modal(ref);
-        modal.show();
+    const foods = useSelector((state) => {
+        return state.foodsReducer;
+    })
+
+    async function setFood() {
+        const data = await getFoods()
+        dispatch(set(data))
     }
+    
+    useEffect(() => {
+        setFood()
+      }, [])
 
     return(
       <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -155,7 +161,6 @@ export default function FoodIndex() {
                 </nav>
             </div>
         </div>
-        {/* <FoodModal ref={ref} /> */}
         </section>
   )
 }
