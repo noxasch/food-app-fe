@@ -1,14 +1,13 @@
 "use client"
 
-import { Dropdown, Modal, initFlowbite } from "flowbite";
+import { Modal, initFlowbite } from "flowbite";
 import FoodModal from "./food_modal";
 import { useEffect, useRef } from "react";
 import { removeFood } from "@/lib/api"
-import { useDispatch } from "react-redux";
-import { remove } from '@/redux/features/food'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function FoodTableRow({ food }) {
-  const dispatch = useDispatch()
+  const queryClient = useQueryClient()
   const ref  = useRef(null);
 
   const modalOptions = {
@@ -24,13 +23,20 @@ export default function FoodTableRow({ food }) {
     modal.show();
   }
 
-  async function onDelete() {
-    await removeFood(food.id);
-    dispatch(remove(food.id));
+  const deleteMutation = useMutation({
+    mutationFn: async (foodId) => {
+        const data = await removeFood(foodId)
+        return foodId
+    },
+    onSuccess: (foodId) => {
+      queryClient.setQueryData(['foods'], (prev) => {
+        return prev.filter((item) => item.id !== foodId)
+      })
+    }
+  })
 
-    // const dropEl = document.querySelector(`#food-${food.id}`)
-    // const dropdown = new Dropdown(dropEl);
-    // dropdown.hide()
+  async function onDelete() {
+    deleteMutation.mutate(food.id)
   }
 
   useEffect(() => {

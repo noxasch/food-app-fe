@@ -5,43 +5,38 @@ import { getFoods } from '@/lib/api'
 import FoodTableRow from "./food_table_row"
 import { set } from '@/redux/features/food'
 import { useDispatch, useSelector } from 'react-redux'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Modal } from 'flowbite'
 import FoodModal from './food_modal'
 
 export default function FoodIndex() {
-    const dispatch = useDispatch()
-
     const ref = useRef(null);
 
-    const foods = useSelector((state) => {
-        return state.foodsReducer;
-    })
-
-    async function setFood() {
+    const query = useQuery({
+      queryKey: ['foods'],
+      queryFn:  async () =>  {
         const data = await getFoods()
-        dispatch(set(data))
-    }
+        return data.foods
+      },
+      initialData: () => []
+    })
+    
     const modalOptions = {
-        placement: 'bottom-right',
-        backdrop: 'static',
-        backdropClasses:
-            'bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40',
-        closable: true,
-      }
+      placement: 'bottom-right',
+      backdrop: 'static',
+      backdropClasses:
+          'bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40',
+      closable: true,
+    }
     
-      function onCreate() {
-        const modal = new Modal(ref.current, {}, modalOptions);
-        modal.show();
-      }
-    
-    useEffect(() => {
-        setFood()
-      }, [])
+    function onCreate() {
+      const modal = new Modal(ref.current, {}, modalOptions);
+      modal.show();
+    }      
 
     return(
       <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
         <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
-            {/* <!-- Start coding here --> */}
             <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-visible w-[1000px]">
                 <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div className="w-full md:w-1/2">
@@ -65,7 +60,7 @@ export default function FoodIndex() {
                             </tr>
                         </thead>
                         <tbody>
-                            { foods.map((food) => {
+                            { query.data?.map((food) => {
                                 return (
                                     <FoodTableRow food={food} key={food.id} />
                                 )

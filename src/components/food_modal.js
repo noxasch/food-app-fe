@@ -1,18 +1,17 @@
 'use client'
 
-import { Modal, ModalOptions } from 'flowbite'
-import { useRef, forwardRef, useState, useEffect } from 'react'
+import { Modal } from 'flowbite'
+import { forwardRef, useState } from 'react'
 import { createFood, updateFood } from '@/lib/api'
-import { useDispatch } from 'react-redux'
-import { append, update } from '@/redux/features/food'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 const FoodModal = forwardRef(function FoodModal({ food }, ref) {
-  const dispatch = useDispatch()
+  const queryClient = useQueryClient()
 
   const buttonTitle = food ? 'Update food' : 'Add new food'
 
-  const [name, setName] = useState('')
-  const [price, setPrice] = useState('0.00')
+  const [name, setName] = useState(food?.name || '')
+  const [price, setPrice] = useState(food?.price || '0.00')
 
   const modalOptions = {
     placement: 'bottom-right',
@@ -29,43 +28,52 @@ const FoodModal = forwardRef(function FoodModal({ food }, ref) {
     backdrop.remove();
   }
 
-  async function onSubmit() {
-    if (food == null) {
-        const res = await createFood({
-            name,
-            price
-        })
-        dispatch(append(res))
-    } else {
-        const res = await updateFood(food.id, {
-            id: food.id,
-            name,
-            price
-        })
-        dispatch(update(res))
-    }
-
+  function closeModal() {
     const modal = new Modal(ref.current, {}, modalOptions)
     modal.hide()
     const backdrop = document.querySelector('[modal-backdrop]');
     backdrop.remove();
   }
 
-  useEffect(() => {
-    if (food !== undefined && food != null) {
-        setName(food.name)
-        setPrice(food.price)
+  const updateMutation = useMutation({
+    mutationFn: async (payload) => {
+        const data = await updateFood(food.id, payload)
+        return data
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['foods'], (prev) => {
+        return prev.map((food) => ( food.id == data.id ? data : food))
+      })
+    }
+  })
+
+  const createMutation = useMutation({
+    mutationFn: createFood,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['foods'], (prev) =>{
+        return [...prev, data]
+      })
+    }
+  })
+
+  async function onSubmit() {
+    if (food == null) {
+        createMutation.mutate({ name, price })
+    } else {
+      updateMutation.mutate({
+        id: food.id,
+        name,
+        price
+      })
     }
 
-  }, [])
+    closeModal()
+  }
 
   return (
-    // <!-- Main modal -->
 <div tabIndex="-1" aria-hidden="true" className="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full" ref={ref}>
     <div className="relative p-4 w-full max-w-md max-h-full">
-        {/* <!-- Modal content --> */}
         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            {/* <!-- Modal header --> */}
             <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Create New Food

@@ -11,10 +11,7 @@ export const foodsSlice = createSlice({
     },
     remove: (state, action) => {
       const id = action.payload
-      console.log('BEFORE', state.length)
-      console.log('BEFORE', id)
       const res = state.filter((item) => item.id !== id)
-      console.log('AFTER', res.length)
       return res
     },
     update: (state, action) => {
