@@ -1,7 +1,7 @@
 "use client"
 
 import { Modal, initFlowbite } from "flowbite";
-import FoodModal from "./food_modal";
+import FoodModal from "./food_modal.jsx";
 import { useEffect, useRef } from "react";
 import { removeFood } from "@/lib/api"
 import { useMutation, useQueryClient } from "@tanstack/react-query";

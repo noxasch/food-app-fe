@@ -7,7 +7,7 @@ import { set } from '@/redux/features/food'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Modal } from 'flowbite'
-import FoodModal from './food_modal'
+import FoodModal from './food_modal.jsx'
 
 export default function FoodIndex() {
     const ref = useRef(null);

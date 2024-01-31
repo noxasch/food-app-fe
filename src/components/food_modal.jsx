@@ -22,14 +22,14 @@ const FoodModal = forwardRef(function FoodModal({ food }, ref) {
   }
 
   function onClose() {
-    const modal = new Modal(ref.current, {}, modalOptions)
+    const modal = new Modal(ref.current, modalOptions)
     modal.hide()
     const backdrop = document.querySelector('[modal-backdrop]');
     backdrop.remove();
   }
 
   function closeModal() {
-    const modal = new Modal(ref.current, {}, modalOptions)
+    const modal = new Modal(ref.current, modalOptions)
     modal.hide()
     const backdrop = document.querySelector('[modal-backdrop]');
     backdrop.remove();
