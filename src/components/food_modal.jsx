@@ -1,7 +1,7 @@
 'use client'
 
 import { Modal } from 'flowbite'
-import { forwardRef, useState } from 'react'
+import { forwardRef, useRef } from 'react'
 import { createFood, updateFood } from '@/lib/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -10,8 +10,7 @@ const FoodModal = forwardRef(function FoodModal({ food }, ref) {
 
   const buttonTitle = food ? 'Update food' : 'Add new food'
 
-  const [name, setName] = useState(food?.name || '')
-  const [price, setPrice] = useState(food?.price || '0.00')
+  const formRef = useRef(null);
 
   const modalOptions = {
     placement: 'bottom-right',
@@ -56,7 +55,12 @@ const FoodModal = forwardRef(function FoodModal({ food }, ref) {
     }
   })
 
-  async function onSubmit() {
+  async function onSubmit(event) {
+    event.preventDefault()
+    const form = new FormData(formRef.current)
+    const name = form.get('name')
+    const price = form.get('price')
+
     if (food == null) {
         createMutation.mutate({ name, price })
     } else {
@@ -86,18 +90,18 @@ const FoodModal = forwardRef(function FoodModal({ food }, ref) {
                 </button>
             </div>
             {/* <!-- Modal body --> */}
-            <form onSubmit={(e) => e.preventDefault() } className="p-4 md:p-5">
+            <form ref={formRef} onSubmit={onSubmit} className="p-4 md:p-5">
                 <div className="grid gap-4 mb-4 grid-cols-2">
                     <div className="col-span-2">
                         <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                        <input value={name} onChange={(event) => setName(event.target.value)} type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type product name" required="" />
+                        <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type product name" required="" />
                     </div>
                     <div className="col-span-2">
                         <label htmlFor="price" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
-                        <input value={price} onChange={(event) => setPrice(event.target.value)}   type="number" name="price" id="price" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="$2999" required="" />
+                        <input type="number" name="price" id="price" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="0.00" required="" />
                     </div>
                 </div>
-                <button onClick={onSubmit} type="submit" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <button type="submit" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                     <svg className="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"></path></svg>
                     { buttonTitle }
                 </button>
